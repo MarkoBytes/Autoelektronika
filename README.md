@@ -125,3 +125,6 @@ Autoelektronika/
 - Marko Radanović
 Fakultet tehničkih nauka, Novi Sad  
 Smer: E1 – Primenjena elektronika
+
+## Napomena
+Ovaj projekat je razvijen u edukativne svrhe.
