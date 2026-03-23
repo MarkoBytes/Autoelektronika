@@ -16,7 +16,7 @@ Sistem obuhvata sledeće funkcionalnosti:
 - [x] Detekcija neispravnog senzora (vrednost > 150 Ω)
 - [x] Detekcija prevelike razlike između senzora (> 5 °C)
 - [x] Histerezisno upravljanje ventilatorom (ON > 90 °C, OFF < 85 °C)
-- [x] Prikaz temperature na multipleksiranom 7-segmentnom displeju (XX_X)
+- [x] Prikaz temperature na multipleksiranom 7-segmentnom displeju (XX_XC)
 - [x] LED signalizacija (alarm, kritična temperatura, ventilator)
 - [x] Slanje statusnih i alarm poruka preko serijske veze (simulirani CAN kanal)
 ## Arhitektura sistema
