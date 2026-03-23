@@ -1,0 +1,6 @@
+﻿  main.c
+  main_application.c
+D:\autoelekotronikaVEZBE\Autoelektronika-vezbe-main\Projeka_A\Sistem za merenje temperature motora\Starter\main_application.c(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+D:\autoelekotronikaVEZBE\Autoelektronika-vezbe-main\Projeka_A\Sistem za merenje temperature motora\Starter\main_application.c(323,1): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
+  Starter.vcxproj -> D:\autoelekotronikaVEZBE\Autoelektronika-vezbe-main\Projeka_A\Sistem za merenje temperature motora\Debug\Starter.exe
