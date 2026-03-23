@@ -10,15 +10,15 @@ Projekat je realizovan korišćenjem real-time operativnog sistema FreeRTOS i im
 
 Sistem obuhvata sledeće funkcionalnosti:
 
-- očitavanje temperature sa dva senzora
-- usrednjavanje poslednjih 5 merenja
-- izračunavanje srednje temperature motora
-- detekcija neispravnog senzora
-- detekcija razlike u očitavanjima senzora
-- upravljanje ventilatorom sa histerezisom
-- prikaz temperature na 7-segmentnom displeju
-- slanje upozorenja i statusnih poruka preko CAN komunikacije
-
+- [x] Očitavanje i validacija podataka sa dva temperaturna senzora (simulirano preko AdvUniCom)
+- [x] Klizni prozor usrednjavanja – poslednjih 5 validnih merenja po senzoru
+- [x] Računanje srednje temperature motora
+- [x] Detekcija neispravnog senzora (vrednost > 150 Ω)
+- [x] Detekcija prevelike razlike između senzora (> 5 °C)
+- [x] Histerezisno upravljanje ventilatorom (ON > 90 °C, OFF < 85 °C)
+- [x] Prikaz temperature na multipleksiranom 7-segmentnom displeju (XX_X)
+- [x] LED signalizacija (alarm, kritična temperatura, ventilator)
+- [x] Slanje statusnih i alarm poruka preko serijske veze (simulirani CAN kanal)
 ## Arhitektura sistema
 
 Softver je realizovan kao skup paralelnih taskova u okviru FreeRTOS-a:
@@ -92,27 +92,15 @@ Na primer:
 
 predstavlja određenu vrednost otpornosti koja se prevodi u temperaturu.
 
-### Test scenariji
+## Test scenariji
 
-#### Normalan rad
-- slati slične vrednosti na oba senzora
-- temperatura se prikazuje na displeju
-
-#### Greška senzora
-- poslati vrednost van opsega
-- sistem šalje poruku o neispravnom senzoru
-
-#### Razlika između senzora
-- poslati značajno različite vrednosti na kanal 0 i 1
-- LED bar signalizira grešku
-
-#### Aktiviranje ventilatora
-- poslati vrednosti koje odgovaraju temperaturi iznad 90°C
-- ventilator se uključuje
-
-#### Isključivanje ventilatora
-- spustiti temperaturu ispod 85°C
-- ventilator se isključuje
+| Scenarij                       | Ulaz – Senzor 1 | Ulaz – Senzor 2  | Očekivani rezultat                                                |
+|--------------------------------|-----------------|------------------|-------------------------------------------------------------------|
+| Normalan rad                   | 90–110 Ω        | 90–110 Ω         | Prikaz ~60–73 °C, ventilator isključen                            |
+| Jedan senzor neispravan        | 160 Ω           | 100 Ω            | Poruka "SENZOR 1 NEISPRAVAN", LED alarm, koristi se samo senzor 2 |
+| Prevelika razlika              | 50 Ω            | 120 Ω            | Alarm LED (blink), poruka na COM2                                 |
+| Kritična temperatura           | 145 Ω           | 145 Ω            | > 95 °C → blink LED 2 + poruka "UPOZORENJE"                       |
+| Ventilator uključen/isključen  | > 135 Ω         | > 135 Ω          | LED 1 = ON iznad 90 °C, OFF ispod 85 °C                           |
 
 ## MISRA pravila
 
