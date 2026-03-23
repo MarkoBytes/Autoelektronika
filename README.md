@@ -69,18 +69,25 @@ Pre pokretanja programa potrebno je pokrenuti simulatore iz komandne linije:
 
 ## Testiranje sistema
 
-Testiranje se vrši ručnim slanjem vrednosti sa senzora putem AdvUniCom softvera.
+Otvoriti COM0 (kanal 0) u AdvUniCom terminalu.
+Umesto ASCII karaktera, uneti vrednosti senzora u opsegu 0–150, završiti sa \0d kako bi simulator prepoznao kraj poruke.
+Primer: 75\0d (vrednost senzora 1)
+Otvoriti COM1 (kanal 1) u AdvUniCom terminalu.
+Isto se unose vrednosti za senzor 2 u opsegu 0–150, završiti sa \0d.
+Primer: 80\0d (vrednost senzora 2)
+COM2 (kanal 2) se koristi za komunikaciju sa PC-jem:
+Sistem šalje statusne poruke, upozorenja i informacije o greškama senzora.
+Poruke su u ASCII formatu i završavaju se sa CR.
 
 ### Slanje vrednosti senzora
 Na kanalima:
 - **kanal 0** – senzor 1
 - **kanal 1** – senzor 2
 
-Šalju se vrednosti u **heksadecimalnom formatu** u opsegu:
-0x00 – 0x95
+Vrednosti se šalju direktno u decimalnom formatu u opsegu 0 – 150.
 
 Na primer:
-0x4B
+75
 
 predstavlja određenu vrednost otpornosti koja se prevodi u temperaturu.
 
@@ -123,6 +130,7 @@ Autoelektronika/
 
 - Helena Ivezić 
 - Marko Radanović
+  
 Fakultet tehničkih nauka, Novi Sad  
 Smer: E1 – Primenjena elektronika
 
