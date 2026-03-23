@@ -25,9 +25,10 @@ Softver je realizovan kao skup paralelnih taskova u okviru FreeRTOS-a:
 
 - **Task za prijem podataka** – prima podatke sa senzora putem serijske komunikacije
 - **Task za obradu temperature** – obrađuje podatke, vrši usrednjavanje i detekciju grešaka
-- **Task za prikaz** – prikazuje temperaturu na 7-segmentnom displeju
+- **Task za dispej** – prikazuje temperaturu na 7-segmentnom displeju
 - **Task za komunikaciju sa PC-jem** – šalje statusne poruke i upozorenja
-
+- **Task za led bar** – signalizira stanje motora
+ 
 Razmena podataka između taskova realizovana je pomoću **queue** mehanizma, dok je sinhronizacija ostvarena korišćenjem **semafora i mutexa**.
 
 ## Korišćeni alati i tehnologije
