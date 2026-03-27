@@ -1,5 +1,5 @@
 ﻿// STANDARD INCLUDES
-#include <stdio.h>l.g
+#include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,16 +34,12 @@ static void TimerCallback(TimerHandle_t tmH);
 // RECEPTION DATA BUFFER - COM 0
 #define R_BUF_SIZE (32)
 uint8_t r_buffer[R_BUF_SIZE];
-unsigned volatile r_point;
+volatile uint32_t r_point;
 // FIFO BAFFER ZA POSLEDNJIH 5 VREDNOSTI
 #define FIFO_SIZE (5)
 #define SEG_DASH 16
 #define TX_QUEUE_LENGTH 10
 #define TX_MSG_SIZE 50
-uint8_t fifo_ch0[FIFO_SIZE];
-uint8_t fifo_ch1[FIFO_SIZE];
-uint8_t fifo_index_ch0 = 0;
-uint8_t fifo_index_ch1 = 0;
 uint8_t blink_alarm = 0;
 uint8_t blink_temp = 0;
 
@@ -60,7 +56,7 @@ typedef enum {
 static const char hexnum[] = { 0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71 };
 
 // DISPLAY VARIABLES
-static unsigned char dispMem[5];
+static uint8_t dispMem[5];
 
 // GLOBAL OS-HANDLES
 SemaphoreHandle_t TBE_BinarySemaphore;
@@ -93,7 +89,7 @@ static uint32_t prvProcessRXCInterrupt(void) { // RXC - RECEPTION COMPLETE - INT
 void main_demo(void) {
 	// INITIALIZATION OF THE PERIPHERALS
 	init_7seg_comm();
-	for (int i = 0; i < 4; i++) {
+	for (uint8_t i = 0U; i < 4U; i++) {
 		dispMem[i] = 0;
 	}
 	init_LED_comm();
@@ -172,7 +168,10 @@ void SerialReceive_Task(void* pvParameters) {
 				}
 
 				// slanje u Temp task
-				xQueueSend(Temp_Queue_CH0, &value, portMAX_DELAY);
+				else {
+					// SAMO validne vrednosti idu dalje
+					xQueueSend(Temp_Queue_CH0, &value, portMAX_DELAY);
+				}
 
 				// reset za sledecu poruku
 				rx_index = 0;
@@ -220,7 +219,10 @@ void SerialReceive_Task_CH1(void* pvParameters) {
 				}
 
 				// slanje u Temp task
-				xQueueSend(Temp_Queue_CH1, &value, portMAX_DELAY);
+				else {
+					// SAMO validne vrednosti idu dalje
+					xQueueSend(Temp_Queue_CH1, &value, portMAX_DELAY);
+				}
 
 				// reset za sledecu poruku
 				rx_index = 0;
@@ -241,27 +243,27 @@ void SerialReceive_Task_CH1(void* pvParameters) {
 
 void Temperature_Task(void* pvParameters) {
 
-	int fifo_ch0[FIFO_SIZE] = { 0 };
-	int fifo_ch1[FIFO_SIZE] = { 0 };
+	int32_t fifo_ch0[FIFO_SIZE] = { 0 };
+	int32_t fifo_ch1[FIFO_SIZE] = { 0 };
 
-	int index_ch0 = 0, count_ch0 = 0;
-	int index_ch1 = 0, count_ch1 = 0;
+	int32_t index_ch0 = 0, count_ch0 = 0;
+	int32_t index_ch1 = 0, count_ch1 = 0;
 
-	int value_ch0, value_ch1;
+	int32_t value_ch0 = 0, value_ch1 = 0;
 
 	float temperature1 = 0.0f, temperature2 = 0.0f;
 	float T = 0.0f;
 	float last_T = 0.0f;
 
-	int have_ch0 = 0;
-	int have_ch1 = 0;
+	int32_t have_ch0 = 0;
+	int32_t have_ch1 = 0;
 
 	StatusMsg_t flag;
 
 	while (1) {
 
-		int ch0_new = 0;
-		int ch1_new = 0;
+		int32_t ch0_new = 0;
+		int32_t ch1_new = 0;
 
 		// ===== CH0 =====
 		if (xQueueReceive(Temp_Queue_CH0, &value_ch0, pdMS_TO_TICKS(50)) == pdTRUE) {
@@ -290,7 +292,7 @@ void Temperature_Task(void* pvParameters) {
 		// ===== OBRADA =====
 		if (have_ch0 && have_ch1 && (ch0_new || ch1_new)) {
 
-			int sum0 = 0, sum1 = 0;
+			int32_t sum0 = 0, sum1 = 0;
 
 			//  SABIRAJ SAMO VALIDNE
 			for (int i = 0; i < count_ch0; i++)
@@ -299,8 +301,8 @@ void Temperature_Task(void* pvParameters) {
 			for (int i = 0; i < count_ch1; i++)
 				sum1 += fifo_ch1[i];
 
-			float avg0 = (float)sum0 / count_ch0;
-			float avg1 = (float)sum1 / count_ch1;
+			float avg0 = (float)sum0 / (float)count_ch0;
+			float avg1 = (float)sum1 / (float)count_ch1;
 
 			temperature1 = (avg0 * 100.0f) / 150.0f;
 			temperature2 = (avg1 * 100.0f) / 150.0f;
@@ -377,14 +379,14 @@ void Temperature_Task(void* pvParameters) {
 	}
 }
 void LEDBar_Task(void* pvParameters) {
-	uint8_t blink_alarm = 0;
-	uint8_t blink_temp = 0;
+	uint8_t blink_alarm = 0U;
+	uint8_t blink_temp = 0U;
 
-	uint8_t led_alarm_ch4 = 0;
-	uint8_t upozorenje_95 = 0;
-	uint8_t ventilator = 0;
+	uint8_t led_alarm_ch4 = 0U;
+	uint8_t upozorenje_95 = 0U;
+	uint8_t ventilator = 0U;
 
-	int counter_alarm = 0;
+	uint32_t counter_alarm = 0U;
 
 	while (1) {
 		StatusMsg_t flag;
@@ -454,17 +456,17 @@ void LEDBar_Task(void* pvParameters) {
 	}
 }
 void Display_Task(void* pvParameters) {
-	float T = 0.0f;  // početna vrednost (može biti 0 ili neka default)
+	float T = 0.0f;
 
 	while (1) {
 		// Samo proveri da li postoji nova vrednost, ali NE BLOKIRAJ
 		xQueuePeek(Display_Queue, &T, 0);   // 0 = non-blocking, uzme poslednju ako postoji
 
 		// uvek formatiraj trenutnu T (čak i ako nije stigla nova)
-		int int_part = (int)T;
-		int decimal = (int)((T - int_part) * 10);  // +0.5 za bolje zaokruživanje
-		int tens = int_part / 10;
-		int units = int_part % 10;
+		int32_t int_part = (int)T;
+		int32_t decimal = (int)((T - int_part) * 10);
+		int32_t tens = int_part / 10;
+		int32_t units = int_part % 10;
 
 		dispMem[0] = 12;           // C
 		dispMem[1] = decimal;
@@ -478,7 +480,7 @@ void Display_Task(void* pvParameters) {
 }
 
 static void TimerCallback(TimerHandle_t tmH) {
-	static unsigned char count = 0;
+	static uint8_t count = 0U;
 
 	select_7seg_digit(4 - count);
 
